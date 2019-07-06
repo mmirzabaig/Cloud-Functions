@@ -3,6 +3,7 @@ const Admin = require("firebase-admin")
 const fetch = require('node-fetch');
 
 Admin.initializeApp();
+
 exports.mirza = async (req, res) => {
     await cors(req,res, async () => {
         let data = [];
@@ -28,7 +29,7 @@ exports.mirza = async (req, res) => {
                       if (jsonData.next_page_token) {
                         await setTimeout(() => {
                             getData(jsonData.next_page_token);
-                          }, 1400);
+                          }, 2000);
                           // throw(err);
                       } else {
                          res.status(200).json({
@@ -49,7 +50,7 @@ exports.mirza = async (req, res) => {
                     console.log('NEXT PAGE TOKEN 2' ,jsonData.next_page_token)
                     await setTimeout(() => {
                       getData(jsonData.next_page_token);
-                    }, 1400);
+                    }, 2000);
                       // await ;
                       // throw(err);                  
       
