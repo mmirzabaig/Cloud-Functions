@@ -5,22 +5,113 @@ const db = Admin.firestore()
 
 // console.log('hello')
 
-const hello = async () => {
-    console.log('hello')
-            try {
-                db.collection('Cities').doc('-AllAustinBreweries')
-                .onSnapshot((result) => {
-                    console.log(result, 'DATA INITIAL');
-                   console.log(result.data(), 'resultttttttt')
-                    // res.status(200).json({
-                    //     data: result.data()
-                    // })
-                })
-            } catch(err) {
-                // res.status(400).json({err:err.message})
-            }
+const cloudFunction = async () => {
+    const db = Admin.firestore();
+
+const getBreweries = async () => {
+    return new Promise(async(resolve) => {
+        console.log('hello')
+      
+
+      let breweriesArray = [];
+      await db.collection('Cities').doc('Austin').collection('Breweries')
+      .onSnapshot((results) => {
+        console.log(results.length)
+
+        results.forEach(async(result) => {
+          let brew = result.data();
+          await breweriesArray.push(result.data())
+        //   console.log(breweriesArray);
+          
+        //   fetch('https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=' + brew.geometry.location.lat + ',' + brew.geometry.location.lng + '&radius=1500&type=restaurant&keyword=tacos&key=AIzaSyDRUpBESMbs6306QTg9QeIvQmbhApYl2Qw')
+        //   .then((item) => item.json().then(async(data) => {
+        //     data = data.results.splice(0, 5);
+        //     // data.forEach(())
+  
+        //     const getEachTaco = (tacosArray) => {
+           
+        //       let tacos = tacosArray.map(async(item, index) => {
+        //         await setTimeout(async() => {
+        //           await fetch('https://maps.googleapis.com/maps/api/place/details/json?placeid=' + item.place_id + '&fields=name,rating,formatted_phone_number,formatted_address,opening_hours,photos,place_id,price_level,reviews,website&key=AIzaSyDRUpBESMbs6306QTg9QeIvQmbhApYl2Qw')
+        //           .then(tacoo => tacoo.json().then(async(taco) => {
+        //             console.log(taco, 'TACO-3434')
+        //             let photos = [];
+        //             taco.result.photos.forEach(async(innerItem) => {
+        //               await setTimeout(async() => {
+        //                 await fetch('https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&photoreference=' + innerItem.photo_reference + '&key=AIzaSyDRUpBESMbs6306QTg9QeIvQmbhApYl2Qw')
+        //                 .then((doneR) => {
+        //                   doneR.then((done) => {
+        //                     photos.push(done)
+        //                   })
+        //                 })
+        //               }, 2000)
+        //             })
+        //             item.photos = await photos;
+        //             console.log(item, 'ITEM-1212')
+        //             // .set(taco.result);
+        //           }))
+        //         })
+        //       }, 10000); // Second setTimeout
+        //       return tacos;
+        //     }; // getEachTaco -End
+        //     let updatedTacos = await getEachTaco(data);
+  
+  
+        //     await db.collection('Cities').doc('Austin').collection('Breweres').doc(item.name)
+        //     .set({
+        //       tacos: updatedTacos
+        //   }, { merge: true });
+            
+        //   }))
+       
+        })
+        
+      });
+      setTimeout(() => {
+        resolve(breweriesArray)
+      }, 2000)
+  
+    })
+    
+    // return await breweriesArray;
 }
-hello()
+
+const getTacoPlaces = async () => {
+    // console.log(breweriesArray[0])  
+     getBreweries().then((item) => {
+         console.log('YEAH')
+        console.log(item[0], 'item')
+     })
+
+    // await console.log(breweries[0], '78')
+    // fetch('https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=' + brewery.geometry.location.lat + ',' + brewery.geometry.location.lng + '&radius=1500&type=restaurant&keyword=tacos&key=AIzaSyDRUpBESMbs6306QTg9QeIvQmbhApYl2Qw')
+    // .then((item) => item.json().then((brew) => {
+    //     console.log(brew.result, 'result')
+    // }))
+    
+  }
+  
+  getTacoPlaces();
+
+}
+
+cloudFunction();
+// const hello = async () => {
+//     console.log('hello')
+//             try {
+//                 db.collection('Cities').doc('-AllAustinBreweries')
+//                 .onSnapshot((result) => {
+//                     console.log(result, 'DATA INITIAL');
+//                    console.log(result.data(), 'resultttttttt')
+//                     // res.status(200).json({
+//                     //     data: result.data()
+//                     // })
+//                 })
+//             } catch(err) {
+//                 // res.status(400).json({err:err.message})
+//             }
+// }
+// hello()
 // const saveEachBreweryWithAllPhotosToFirestore = () => {
 //     const getAllBreweries = () => {
 //         return new Promise(async(resolve, reject) => {
