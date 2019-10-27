@@ -20,7 +20,10 @@ const getBreweries = async () => {
 
         results.forEach(async(result) => {
           let brew = result.data();
-          await breweriesArray.push(result.data())
+          if (brew.geometry.location) {
+            await breweriesArray.push(brew)
+          }
+          
         //   console.log(breweriesArray);
           
         //   fetch('https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=' + brew.geometry.location.lat + ',' + brew.geometry.location.lng + '&radius=1500&type=restaurant&keyword=tacos&key=AIzaSyDRUpBESMbs6306QTg9QeIvQmbhApYl2Qw')
@@ -80,7 +83,7 @@ const getTacoPlaces = async () => {
     // console.log(breweriesArray[0])  
      getBreweries().then((item) => {
          console.log('YEAH')
-        console.log(item[0], 'item')
+        console.log(item[0], item.length, 'item')
      })
 
     // await console.log(breweries[0], '78')
