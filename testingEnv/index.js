@@ -16,11 +16,11 @@ const getBreweries = async () => {
       let breweriesArray = [];
       await db.collection('Cities').doc('Austin').collection('Breweries')
       .onSnapshot((results) => {
-        console.log(results.length)
 
         results.forEach(async(result) => {
           let brew = result.data();
-          if (brew.geometry.location) {
+          // console.log(rs)
+          if (brew.hasOwnProperty('geometry')) {
             await breweriesArray.push(brew)
           }
           
@@ -72,7 +72,7 @@ const getBreweries = async () => {
       });
       setTimeout(() => {
         resolve(breweriesArray)
-      }, 2000)
+      }, 1700)
   
     })
     
@@ -81,10 +81,42 @@ const getBreweries = async () => {
 
 const getTacoPlaces = async () => {
     // console.log(breweriesArray[0])  
-     getBreweries().then((item) => {
-         console.log('YEAH')
-        console.log(item[0], item.length, 'item')
+     getBreweries().then((breweries) => {
+        console.log('YEAH')
+        console.log(breweries.length, 'item')
+        // console.log(breweries[0].geometry)
+        fetch('https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=' + breweries[0].geometry.location.lat + ',' + breweries[0].geometry.location.lng + '&radius=1500&type=restaurant&keyword=tacos&key=AIzaSyDRUpBESMbs6306QTg9QeIvQmbhApYl2Qw')
+        .then((data) => data.json().then(async(brew) => {
+            // console.log(brew.results.length, 'result')
+            let fivePlaces = brew.results.splice(0, 5);
+            console.log(fivePlaces.length, 'tacoPlaces')
+            let tacos = [];
+            await fivePlaces.map((taco, index) => {
+                          // console.log(taco.geometry, index, '<--------------------')
+                          getTacoPlaces(taco)
+                          .then((item) => {
+                            // console.log(item, 'ItEMM!!!')
+                            tacos.push(item);
+                          });
+                        })
+            setTimeout(() => {
+              console.log(tacos);
+            }, 1000);
+            
+
+        }))
      })
+
+     const getTacoPlaces = (taco) => {
+      // console.log(taco.place_id)
+        return new Promise((resolve) => {
+          fetch('https://maps.googleapis.com/maps/api/place/details/json?placeid=' + taco.place_id + '&fields=name,rating,formatted_phone_number,formatted_address,opening_hours,photos,place_id,price_level,reviews,website&key=AIzaSyDRUpBESMbs6306QTg9QeIvQmbhApYl2Qw')
+          .then(items => items.json().then((item) => {
+            // console.log(item.result)
+            resolve(item.result);
+          }))
+        });
+     }
 
     // await console.log(breweries[0], '78')
     // fetch('https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=' + brewery.geometry.location.lat + ',' + brewery.geometry.location.lng + '&radius=1500&type=restaurant&keyword=tacos&key=AIzaSyDRUpBESMbs6306QTg9QeIvQmbhApYl2Qw')
