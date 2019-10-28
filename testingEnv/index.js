@@ -5,7 +5,7 @@ const db = Admin.firestore()
 
 // console.log('hello')
 
-const cloudFunction = async () => {
+const getTacosForEachBrewery = async () => {
     const db = Admin.firestore();
 
 const getBreweries = async () => {
@@ -72,7 +72,7 @@ const getBreweries = async () => {
       });
       setTimeout(() => {
         resolve(breweriesArray)
-      }, 1700)
+      }, 3700)
   
     })
     
@@ -81,30 +81,52 @@ const getBreweries = async () => {
 
 const getTacoPlaces = async () => {
     // console.log(breweriesArray[0])  
+    let count = 0;
      getBreweries().then((breweries) => {
         console.log('YEAH')
         console.log(breweries.length, 'item')
         // console.log(breweries[0].geometry)
-        fetch('https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=' + breweries[0].geometry.location.lat + ',' + breweries[0].geometry.location.lng + '&radius=1500&type=restaurant&keyword=tacos&key=AIzaSyDRUpBESMbs6306QTg9QeIvQmbhApYl2Qw')
-        .then((data) => data.json().then(async(brew) => {
-            // console.log(brew.results.length, 'result')
-            let fivePlaces = brew.results.splice(0, 5);
-            console.log(fivePlaces.length, 'tacoPlaces')
-            let tacos = [];
-            await fivePlaces.map((taco, index) => {
-                          // console.log(taco.geometry, index, '<--------------------')
-                          getTacoPlaces(taco)
-                          .then((item) => {
-                            // console.log(item, 'ItEMM!!!')
-                            tacos.push(item);
-                          });
-                        })
-            setTimeout(() => {
-              console.log(tacos);
-            }, 1000);
-            
+        // breweries.forEach((brewery, idx) => {
+        // breweries = breweries.splice(0, 23);
+        for(let idx = 0; idx < breweries.length; idx++) {
+          let brewery = breweries[idx];
+        
 
-        }))
+        setTimeout(() => {
+
+        
+          fetch('https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=' + brewery.geometry.location.lat + ',' + brewery.geometry.location.lng + '&radius=3500&type=restaurant&keyword=tacos&key=AIzaSyDRUpBESMbs6306QTg9QeIvQmbhApYl2Qw')
+          .then((data) => data.json().then(async(brew) => {
+              // console.log(brew.results.length, 'result')
+              let fivePlaces = brew.results.splice(0, 5);
+              console.log(fivePlaces.length, 'tacoPlaces')
+              let tacos = [];
+              await fivePlaces.map((taco, index) => {
+                            // console.log(taco.geometry, index, '<--------------------')
+                            getTacoPlaces(taco)
+                            .then((item) => {
+                              // console.log(item, 'ItEMM!!!')
+                              tacos.push(item);
+                            });
+                          })
+              setTimeout(() => {
+                if (tacos.length > 0 && tacos !== undefined && brewery.name !== undefined) {
+                  console.log(tacos.length);
+                  console.log(brewery.name)
+                  console.log(idx, 'index')
+                  console.log(count, 'COUNT')
+
+                  db.collection('Cities').doc('Austin').collection('Breweries').doc(brewery.name)
+                  .set({
+                      tacos: tacos
+                  }, { merge: true });
+                  count++;
+                }
+               
+              }, 1000);
+          }))
+        }, 2000)
+        }
      })
 
      const getTacoPlaces = (taco) => {
@@ -130,7 +152,7 @@ const getTacoPlaces = async () => {
 
 }
 
-cloudFunction();
+getTacosForEachBrewery();
 // const hello = async () => {
 //     console.log('hello')
 //             try {
